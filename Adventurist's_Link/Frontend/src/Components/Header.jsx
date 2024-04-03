@@ -7,7 +7,7 @@ import {FaMoon} from 'react-icons/fa'
 const Header = () => {
     const path = useLocation().pathname;
     return (
-      <Navbar className='border-b-2' >
+      <Navbar className='border-b-2 ' >
         <Link to="/" className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'>
             <span className='px-2 py-1 bg-gradient-to-r from-indigo-500 via-blue-700 to-red-400 rounded-lg text-white'> Adventurist's</span>
             Link
@@ -35,7 +35,7 @@ const Header = () => {
             </Link>
              <Navbar.Toggle/>
           </div>
-          <Navbar.Collapse className='flex'>
+          <Navbar.Collapse className='flex flex-col'>
                 <Navbar.Link active={path === "/"} as={'div'} >
                     <Link to="/">
                         Home

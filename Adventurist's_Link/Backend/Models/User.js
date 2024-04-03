@@ -63,6 +63,7 @@ const UserSchema = new mongoose.Schema({
       ref: 'TravelMatch'
     }
   ]
-});
+    // created at / updated at => Member since <createdAt>
+},{timestamps: true});
 
 export default mongoose.model('User', UserSchema);

@@ -26,6 +26,6 @@ const UsersSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  
-});
+  // created at / updated at
+},{timestamps: true});
 export default mongoose.model("Users", UsersSchema);
