@@ -102,8 +102,9 @@ const verifyUserLogin = async (email, password) => {
             username: user.email,
             type: "user",
             isAdmin: user.isAdmin,
+            verified: user.verified,
           },
-          "JWT_SECRET",
+          process.env.JWT_SECRET,
           { expiresIn: "3h" }
         );
         console.log("logged in");

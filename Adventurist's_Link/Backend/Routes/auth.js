@@ -1,6 +1,5 @@
 import express from "express";
 import isAdmin from "../Middlewares/isAdmin.js";
-import  isLoggedIn from "../Middlewares/isLoggedIn.js";
 import { registerUser, login , logout, forgotPassword, resetpassword} from "../Controllers/Users.js";
 import UserVerification from "../Models/UserVerification.js";
 import bcrypt from "bcryptjs" ;

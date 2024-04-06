@@ -9,6 +9,7 @@ import About from './Pages/About'
 
 export default function App() {
   return (   
+    
     <BrowserRouter >
       <Header />
       <Routes>
@@ -18,5 +19,6 @@ export default function App() {
           <Route path='/about' element={<About />}/>
       </Routes>
     </BrowserRouter>
+    
   )
 }
