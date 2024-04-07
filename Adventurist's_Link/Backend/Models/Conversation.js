@@ -1,3 +1,4 @@
+import { text } from "express";
 import mongoose from "mongoose";
 
 const ConversationSchema = new mongoose.Schema({
@@ -9,14 +10,14 @@ const ConversationSchema = new mongoose.Schema({
           required: true
         }
       ],
-      messages: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Messages',
-          default: [],
+      
+      lastMessage:{
+         text: String,
+         sender: {type: mongoose.Schema.Types.ObjectId,
+          ref: 'Users',
         }
-      ]
-});
+      },
+},{timestamps: true});
 
 export default mongoose.model("Conversations", ConversationSchema);
 

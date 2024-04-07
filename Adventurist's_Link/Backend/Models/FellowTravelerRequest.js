@@ -8,12 +8,12 @@ const FellowTravelerRequestSchema = new mongoose.Schema({
       },
       sender: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'userProfile',
         required: true
       },
       receiver: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'userProfile',
         required: true
       },
       itinerary: {
@@ -26,10 +26,6 @@ const FellowTravelerRequestSchema = new mongoose.Schema({
         enum: ['pending', 'accepted', 'rejected'],
         default: 'pending'
       },
-      timestamp: {
-        type: Date,
-        required: true
-      }
-});
+},{timestamps:true});
 
 module.exports = mongoose.model("FellowTravelerRequests", FellowTravelerRequestSchema);

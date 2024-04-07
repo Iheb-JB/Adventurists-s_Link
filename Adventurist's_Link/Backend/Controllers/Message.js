@@ -1,5 +1,7 @@
+import { text } from "express";
 import Conversations from "../Models/Conversation.js"
 import Message from '../Models/Message.js'
+import Conversation from "../Models/Conversation.js";
 
 export const sendMessage = async(req,res)=>{
     try{
@@ -7,29 +9,38 @@ export const sendMessage = async(req,res)=>{
        const {id: receiverId}= req.params ;
        const senderId = req.user._id;
 
+       //console.log("Sender ID:", senderId, "Receiver ID:", receiverId);
        let conversation = await  Conversations.findOne({
-          particpants: {$all:[senderId, receiverId]},
+          participants: {$all:[senderId,receiverId]},
        });
-        // check if the conversation exists or its first time message
+        // check if it's first time message create new conversation
         if(!conversation){
             conversation = await Conversations.create({
                 participants: [senderId, receiverId],
+                lastMessage: {
+                    text: message,
+                    sender: senderId    
+                }
             })
+            await conversation.save();
         }
         const newMessage = new Message({
+            conversationId: conversation._id,
             senderId: senderId,
-            receiverId: receiverId,
+            //receiverId: receiverId,
             content: message,
         })
-        // send new message in the messages array
-        if(newMessage){
-            conversation.messages.push(newMessage._id)
-        }
         // SOCKET IO FUNCTIONALITY TO BE ADDED 
-
-
         // save in parallel to ensure real-time updates in chat feature
-        await Promise.all([conversation.save(),newMessage.save()]);
+        await Promise.all([
+            newMessage.save(),
+            conversation.updateOne({
+                lastMessage:{
+                    text: message,
+                    sender: senderId,
+                }
+            })
+        ]);
         res.status(201).json(newMessage);
        
     }catch(error){
@@ -44,13 +55,42 @@ export const getMessages = async(req, res)=>{
      const senderId = req.user._id;
      const conversation = await Conversations.findOne({
        participants:{$all:[senderId,userToChatId]},
-     }).populate("messages");  //getting the messages objects  instead of just the reference (id) of the message
-      if(!conversation) return res.status(200).json([]);
+     }); 
+      if(!conversation){
+        return res.status(404).json({error:"Conversation not found!"});
+      } 
+     const messages = await Message.find({
+        conversationId: conversation._id
+     }).sort({createdAt: 1});
 
-     res.status(200).json(conversation.messages);
+     res.status(200).json(messages);
    }catch(error){
     console.log("error in get Messages:" , error.message);
     res.status(500).json({error: "internal server error"});
    }
 
+};
+
+export const getConversations = async(req,res)=>{
+    const userId = req.user._id;
+    try{
+        const conversations = await Conversation.find({participants: userId}).populate({
+            path:"participants",
+            select: "firstName lastName",
+        });
+        // remove the founded user from participants array
+        
+		conversations.forEach((conversation) => {
+			conversation.participants = conversation.participants.filter(
+				(participant) => participant._id.toString() !== userId.toString()
+			);
+		});
+
+        // send response
+        res.status(200).json(conversations);
+    }catch(error){
+      console.log("error in getting Conversations:" , error.message);
+      res.status(500).json({error: "internal server error"});
+    }
+   
 };

@@ -26,7 +26,7 @@ const ItinerarySchema = new mongoose.Schema({
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'userProfile'
     },
     destination: { 
       type: mongoose.Schema.Types.ObjectId,
@@ -41,7 +41,7 @@ const ItinerarySchema = new mongoose.Schema({
     participants: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'User'
+          ref: 'userProfile'
         }
     ],
     reviews: [

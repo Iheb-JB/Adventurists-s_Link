@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectToMongoDb from "./DB/connectToMongoDb.js";
 import auth from '../Backend/Routes/auth.js'
 import messaging from '../Backend/Routes/messaging.js'
+import userRoutes from '../Backend/Routes/userRoutes.js'
 import cookieParser from "cookie-parser";
 
 
@@ -17,6 +18,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", auth);
 app.use("/api/messages", messaging);
+app.use("/api/users",userRoutes);
 
 app.all('*', (req, res) => {
     res.status(404).send('Route not found');

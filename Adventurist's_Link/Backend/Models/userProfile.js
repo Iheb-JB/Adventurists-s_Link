@@ -1,12 +1,18 @@
 import mongoose from 'mongoose';
 import Users from './Users.js'; 
 
-const UserSchema = new mongoose.Schema({
-  id: { 
-    type: String,
+const userProfileSchema = new mongoose.Schema({
+  // Reference to the Users model for authentication details
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users',
     required: true,
     unique: true 
-    },
+  },
+  username: {
+    type: String,
+    required: true
+  },
   profilePicture:{
      type: String,
      default: "",
@@ -22,11 +28,21 @@ const UserSchema = new mongoose.Schema({
     },
   identityVerified: {
      type: Boolean,
-     required: true 
+     required: true,
+     default: false,
     },
   accountStatus: { 
     type: String,
     required: true 
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ['Male', 'Female', 'Other'],
+    },
+    dateOfBirth: {
+      type: Date,
+      required: true,
     },
   //reference relationships that define one-to-many relationships between models
   itineraries: [
@@ -66,4 +82,4 @@ const UserSchema = new mongoose.Schema({
     // created at / updated at => Member since <createdAt>
 },{timestamps: true});
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('userProfile', userProfileSchema);

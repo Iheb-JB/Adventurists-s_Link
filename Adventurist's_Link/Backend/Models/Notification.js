@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import User from "./User.js";
+
 
 const NotificationSchema = new mongoose.Schema({
   
@@ -19,15 +19,12 @@ const NotificationSchema = new mongoose.Schema({
   },
   read: { 
     type: Boolean,
-    default: false },
-  timestamp: { 
-    type: Date, 
-    required: true
-  },
+    default: false
+   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User' 
+    ref: 'userProfile' 
   },
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model("Notifications", NotificationSchema);

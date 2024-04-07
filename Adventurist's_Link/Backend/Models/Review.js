@@ -15,13 +15,9 @@ const ReviewSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  timestamp: {
-    type: Date,
-    required: true
-  },
   user: { 
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User' },
-});
+    ref: 'userProfile' },
+}, {timestamps:true});
 
 module.exports = mongoose.model('Reviews', ReviewSchema);
