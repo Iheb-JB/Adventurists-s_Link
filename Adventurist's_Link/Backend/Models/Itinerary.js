@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
-import User from "./User.js";
-import Destinations from "./Destination.js";
 
 const ItinerarySchema = new mongoose.Schema({
-  
-    id:{
-      type: String,
-      required: true,
-      unique: true
-    },
     title:{
       type: String,
       required: true
@@ -52,4 +44,4 @@ const ItinerarySchema = new mongoose.Schema({
     ],
 });
 
-module.exports = mongoose.model("Itineraries", ItinerarySchema);
+ export default mongoose.model("Itineraries", ItinerarySchema);

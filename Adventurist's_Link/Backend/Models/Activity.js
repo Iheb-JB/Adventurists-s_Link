@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 
 const ActivitySchema = new mongoose.Schema({
-  
-  id: {
-     type: String,
-     required: true,
-     unique: true 
-  },
   name: {
      type: String,
      required: true 
@@ -20,4 +14,4 @@ const ActivitySchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.Schema("Activities", ActivitySchema)
+export default mongoose.model("Activities", ActivitySchema);

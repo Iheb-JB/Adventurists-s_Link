@@ -15,14 +15,26 @@ export const getUsersForSideBar = async(req,res)=>{
 
 export const editProfile = async(req,res)=>{
     try {
-        const { bio, profilePicture, travelerPreferences, identityVerified, accountStatus, gender, dateOfBirth } = req.body;
+        //const {username, bio, profilePicture, travelerPreferences, identityVerified, accountStatus, gender, dateOfBirth } = req.body;
         const userId = req.user._id; // get the logged user ID
         //find user object to update
         const userProfileToUpdate = await userProfile.findOne({userId});
         if (!userProfileToUpdate) {
             return res.status(404).json({error: "User profile not found"});
           }
+          // Extract fields from req.body
+          const {
+            username = userProfileToUpdate.username,
+            bio = userProfileToUpdate.bio,
+            profilePicture = userProfileToUpdate.profilePicture,
+            travelerPreferences = userProfileToUpdate.travelerPreferences,
+            identityVerified = userProfileToUpdate.identityVerified,
+            accountStatus = userProfileToUpdate.accountStatus,
+            gender = userProfileToUpdate.gender,
+            dateOfBirth = userProfileToUpdate.dateOfBirth,
+        } = req.body;
         // Update the user profile
+       userProfileToUpdate.username = username;
        userProfileToUpdate.bio = bio;
        userProfileToUpdate.profilePicture= profilePicture;
        userProfileToUpdate.travelerPreferences = travelerPreferences;

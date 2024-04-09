@@ -4,6 +4,9 @@ import connectToMongoDb from "./DB/connectToMongoDb.js";
 import auth from '../Backend/Routes/auth.js'
 import messaging from '../Backend/Routes/messaging.js'
 import userRoutes from '../Backend/Routes/userRoutes.js'
+import destinationRoutes from '../Backend/Routes/destinationRoutes.js'
+import activitiesRoutes from '../Backend/Routes/activitiesRoutes.js'
+import itinerariesRoute from '../Backend/Routes/itinerariesRoutes.js'
 import cookieParser from "cookie-parser";
 
 
@@ -19,6 +22,9 @@ app.use(cookieParser());
 app.use("/api/auth", auth);
 app.use("/api/messages", messaging);
 app.use("/api/users",userRoutes);
+app.use("/api/destinations",destinationRoutes);
+app.use("/api/activities",activitiesRoutes);
+app.use("/api/itineraries",itinerariesRoute);
 
 app.all('*', (req, res) => {
     res.status(404).send('Route not found');

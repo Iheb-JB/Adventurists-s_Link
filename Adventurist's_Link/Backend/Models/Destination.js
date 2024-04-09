@@ -3,22 +3,20 @@ import mongoose from "mongoose";
 
 const DestinationSchema = new mongoose.Schema({
 
-    id:{
-      type: String,
-      required: true,
-      unique: true
-    },
     name:{
        type: String,
        required: true
     },
-    latitude: {
-         type: Number,
-         required: true
-    },
-    longitude: { 
-      type: Number,
-      required: true
+    location: {
+      type: {
+        type: String, // GeoJSON type
+        enum: ['Point'], 
+        required: true
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true
+      }
     },
     itineraries: [
         {
@@ -27,5 +25,8 @@ const DestinationSchema = new mongoose.Schema({
         }
     ],
 });
+
+// Geospatial index for querying by location
+DestinationSchema.index({ location: '2dsphere' });
 
 export default mongoose.model("Destinations",DestinationSchema);

@@ -6,7 +6,6 @@ const userProfileSchema = new mongoose.Schema({
   userId: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
-    required: true,
     unique: true 
   },
   username: {
@@ -19,8 +18,8 @@ const userProfileSchema = new mongoose.Schema({
     },
   bio: { 
     type: String,
-    required: true 
-    },
+    default:""
+  },
   travelerPreferences: { 
     type: String,
     required: false ,

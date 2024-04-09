@@ -12,6 +12,7 @@ import path from "path";
 import { error } from "console";
 import crypto from "crypto";
 import Token from "../Models/Token.js";
+import userProfile from "../Models/userProfile.js";
 
 
 const generateTokenAndSetCookie = (userId, res) => {
@@ -120,24 +121,47 @@ const verifyUserLogin = async (email, password) => {
 const login = async(req,res)=>{
     
         const{email,password}= req.body;
-        const user = Users.findOne({email});
+        try{
+          const user = await Users.findOne({email});
         
          // we made a function to verify our user login
          const response = await verifyUserLogin(email, password);
-
+         //check if userProfile already exists
+         let profile = await userProfile.findOne({userId:user._id});
+         if(!profile){
+          // create username from users
+          const username = `${user.firstName}_${user.lastName}`;
+          profile = new userProfile({ // create the user Profile since it does not exist
+             userId: user._id,
+             username: username,
+             bio: "",
+             profilePicture: "",
+             travelerPreferences:"Party , Festivals and Events",
+             identityVerified: true,
+             accountStatus: 'Active',
+             gender:"Male", 
+             dateOfBirth: new Date(),
+          });
+          await profile.save();
+         }
          if (response.status === "ok") {
-            // storing our JWT web token as a cookie in our browser
-            res
-              .cookie("token", response.data, {
-                httpOnly: true,
-                secure: true,
-                path: "/",
-                SameSite: "none",
-              })
-              .json({ loginStatus: true }); // maxAge: 2 hours
-          } else {
-            res.json(response);
-          }
+          // storing our JWT web token as a cookie in our browser
+          res
+            .cookie("token", response.data, {
+              httpOnly: true,
+              secure: true,
+              path: "/",
+              SameSite: "none",
+            })
+            .json({ loginStatus: true }); // maxAge: 2 hours
+        } else {
+          res.json(response);
+        }
+        }catch(error){
+          console.log("Error in Login:", error.message);
+          res.status(500).json({ error: "Internal server error" });
+        }
+            
 };
 
 const logout = async(req,res)=>{
