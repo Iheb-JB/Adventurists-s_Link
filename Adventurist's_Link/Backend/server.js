@@ -39,6 +39,6 @@ app.all('*', (req, res) => {
 
 app.listen(PORT , ()=> {
     connectToMongoDb();
-    console.log(`Sever is running on this port ${PORT}`)
+    console.log(`Server is running on this port ${PORT}`)
 
 });

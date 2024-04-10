@@ -20,10 +20,10 @@ const ItinerarySchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'userProfile'
     },
-    destination: { 
+    destinations: [{ 
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Destination'
-    },
+    }],
     activities: [
         {
           type: mongoose.Schema.Types.ObjectId,
