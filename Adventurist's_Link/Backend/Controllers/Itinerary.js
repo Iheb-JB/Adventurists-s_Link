@@ -1,3 +1,4 @@
+import { sendNotification } from "../Helpers/notificationHelper.js";
 import Activity from "../Models/Activity.js";
 import Destination from "../Models/Destination.js";
 import Itinerary from "../Models/Itinerary.js"
@@ -39,7 +40,8 @@ export const createItinerary = async(req,res)=>{
         return res.status(404).json({error: "User not found !"});
     }
     creator.itineraries.push(itinerary._id);
-    await creator.save(); // save te\he updated user profile
+    await creator.save(); // save the updated user profile
+    sendNotification(userId,'Itinerary Update','A new itinerary has been created'); // send notification about itinerary creation
     res.status(201).json(itinerary);
         
     } catch (error) {
@@ -66,6 +68,9 @@ export const editItineray = async(req,res)=>{
            itinerary[key]= updates[key];
         });
         await itinerary.save();
+        itinerary.participants.forEach(participant =>{
+            sendNotification(participant._id, 'Itinerary update',` Your itinerary ${itinerary.title} have been updated .`);
+         });
         res.status(200).json(itinerary);
     } catch (error) {
         console.log("error in updating Itinerary:" , error.message);
@@ -85,6 +90,7 @@ export const deleteItinerary = async(req,res)=>{
             return res.status(403).json({error:"You do not have permission to delete this itinerary."});
         }
         await itinerary.deleteOne({_id: itineraryId});
+        sendNotification(itinerary.user,'Itinerary update',`Your ${itinerary.title} itinerary has been deleted `);
         res.status(200).json({message: "Itinerary deleted successfully !"});
 
      } catch (error) {
@@ -106,6 +112,10 @@ export const addActivity = async(req,res)=>{
         if(!itinerary.activities.includes(activityId)){
             itinerary.activities.push(activityId);
             await itinerary.save();
+            //notify all participants about the new activity
+            itinerary.participants.forEach(participant =>{
+               sendNotification(participant._id, 'Itinerary update',`A new activity have been added to your itinerary ${itinerary.title}`);
+            });
         }
         res.status(200).json(itinerary);
         
@@ -121,6 +131,7 @@ export const removeActivityFromItinerary = async (req, res) => {
 
     try {
         const itinerary = await Itinerary.findById(itineraryId);
+        const activity = await Activity.findById(activityId);
 
         if (!itinerary) {
             return res.status(404).json({ error: "Itinerary not found." });
@@ -128,6 +139,10 @@ export const removeActivityFromItinerary = async (req, res) => {
 
         itinerary.activities = itinerary.activities.filter((id) => id.toString() !== activityId);
         await itinerary.save();
+        //notify all participants about the deleted activity
+        itinerary.participants.forEach(participant =>{
+            sendNotification(participant._id, 'Itinerary update',`Activity ${activity.name} have been deleted from your itinerary ${itinerary.title}`);
+         });
 
         res.status(200).json(itinerary);
     } catch (error) {
@@ -141,17 +156,25 @@ export const addParticipant = async(req,res)=>{
     const {username} = req.body ;
     try {
         const itinerary = await Itinerary.findById(itineraryId);
-        const participant = await userProfile.findOne({username});
-        if(!itinerary || !participant){
+        const newParticipant = await userProfile.findOne({username});
+        if(!itinerary || !newParticipant){
             return res.status(404).json({error:"Itinerary or Participant not found !"});
         }
         // check if participant exists already in the participants array
-        if(itinerary.participants.includes(participant._id)){
+        if(itinerary.participants.includes(newParticipant._id)){
             return res.status(409).json({message: "Participant already added to this Itinerary !"});
         }
-        itinerary.participants.push(participant._id);
-        participant.itineraries.push(itineraryId);
-        await Promise.all([itinerary.save(), participant.save()]);
+        itinerary.participants.push(newParticipant._id);
+        newParticipant.itineraries.push(itineraryId);
+        await Promise.all([itinerary.save(), newParticipant.save()]);
+        // sending notifications about the Itinerary change to concerned user and remaining users
+        sendNotification(newParticipant._id,'Itinerary update',`You have been added to Itinerary ${itinerary.title}`);
+        itinerary.participants.forEach(participant =>{
+           if(participant._id.toString() !== newParticipant._id.toString()){
+             sendNotification(participant._id,'Itinerary update',`${newParticipant.username} have been added Itinerary ${itinerary.title}`);
+           }
+        });
+        
         res.status(200).json({message: "Participant added successfully /n",itinerary});
         
     } catch (error) {
@@ -166,15 +189,23 @@ export const removeParticipantFromItinerary = async (req, res) => {
 
     try {
         const itinerary = await Itinerary.findById(itineraryId);
-        const participant = await userProfile.findOne({username});
+        const participantToRemove = await userProfile.findOne({username});
 
-        if (!itinerary || !participant) {
+        if (!itinerary || !participantToRemove) {
             return res.status(404).json({ error: "Itinerary or participant not found." });
         }
-9
-        itinerary.participants = itinerary.participants.filter((id) => id.toString() !== participant._id.toString());
-        await itinerary.save();
 
+        itinerary.participants = itinerary.participants.filter((id) => id.toString() !== participantToRemove._id.toString());
+        await itinerary.save();
+        //delet the itinerary from the particpant itineraries array 
+        participantToRemove.itineraries = participantToRemove.itineraries.filter(id => id.toString()!== itineraryId);
+        await participantToRemove.save();
+        // sending notification to the romved participant
+        sendNotification(participantToRemove._id,'Itinerary update',`You have been removed from Itinerary ${itinerary.title}`);
+        //notify remianing participants
+        itinerary.participants.forEach(participant =>{
+            sendNotification(participant._id, 'Itinerary Update',`${participantToRemove.username} has been removed from your Itinerary ${itinerary.title}`);
+        });
         res.status(200).json(itinerary);
     } catch (error) {
         console.log("Error in removing participant from Itinerary:", error.message);
@@ -199,6 +230,10 @@ export const addDestinationToItinerary = async (req, res) => {
             destination.itineraries.push(itineraryId);
             //console.log(testDest);
             await Promise.all([itinerary.save(), destination.save()]);
+            // Notify all participants about the new destination
+            itinerary.participants.forEach(participant => {
+                sendNotification(participant._id, 'Itinerary Update', `A new destination ${destination.name} has been added to your itinerary ${itinerary.title}.`);
+            });
             res.status(200).json({ message: "Destination added successfully.", itinerary });
         } else {
             res.status(409).json({ message: "Destination already added to the itinerary." });
@@ -222,6 +257,11 @@ export const removeDestinationFromItinerary = async (req, res) => {
 
         itinerary.destinations = itinerary.destinations.filter(id => id.toString() !== destinationId);
         await itinerary.save();
+
+        // Notify all participants about the destination removal
+        itinerary.participants.forEach(participant => {
+            sendNotification(participant._id, 'Itinerary Update', `A destination has been removed from your itinerary ${itinerary.title}.`);
+        });
 
         res.status(200).json({ message: "Destination removed successfully.", itinerary });
     } catch (error) {

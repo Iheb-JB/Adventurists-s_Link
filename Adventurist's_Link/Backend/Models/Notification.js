@@ -2,22 +2,17 @@ import mongoose from "mongoose";
 
 
 const NotificationSchema = new mongoose.Schema({
-  
-  id: {
-    type: String,
-    required: true,
-    unique: true 
-  },
+
   type: { 
     type: String,
     required: true,
-    enum:["FellowTravelerRequest","Review Rating","General"] 
+    enum:["FellowTravelerRequest","Review Rating","Itinerary update","MessageNotification"] 
   },
   message: {
     type: String,
     required: true
   },
-  read: { 
+  markAsRead: { 
     type: Boolean,
     default: false
    },
@@ -25,6 +20,10 @@ const NotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'userProfile' 
   },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
 }, {timestamps: true});
 
-module.exports = mongoose.model("Notifications", NotificationSchema);
+export default mongoose.model("Notifications", NotificationSchema);
