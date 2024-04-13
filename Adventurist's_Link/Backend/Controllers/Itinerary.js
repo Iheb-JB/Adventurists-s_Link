@@ -34,7 +34,7 @@ export const createItinerary = async(req,res)=>{
     });
 
     await itinerary.save();
-    //update the creatpr userProfile document
+    //update the creator userProfile document
     const creator = await userProfile.findById(userId);
     if(!creator){
         return res.status(404).json({error: "User not found !"});

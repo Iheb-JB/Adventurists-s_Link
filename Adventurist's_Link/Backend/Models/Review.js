@@ -1,15 +1,12 @@
 import mongoose from "mongoose";
-import User from "./User.js";
+
 
 const ReviewSchema = new mongoose.Schema({
-  id: { 
-    type: String,
-    required: true,
-    unique: true 
-  },
   rating: {
     type: Number,
-    required: true
+    required: true,
+    min: 1,
+    max: 5,
   },
   content: { 
     type: String,
@@ -17,7 +14,16 @@ const ReviewSchema = new mongoose.Schema({
   },
   user: { 
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'userProfile' },
+    ref: 'userProfile'
+   },
+   reviewer: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userProfile'
+   },
+   itinerary: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Itinerary",
+  },
 }, {timestamps:true});
 
-module.exports = mongoose.model('Reviews', ReviewSchema);
+export default mongoose.model('Reviews', ReviewSchema);
