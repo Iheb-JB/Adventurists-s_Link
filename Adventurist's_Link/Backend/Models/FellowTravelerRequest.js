@@ -1,23 +1,18 @@
 import mongoose from "mongoose";
 
 const FellowTravelerRequestSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-        unique: true
-      },
       sender: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'userProfile',
         required: true
       },
       receiver: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'userProfile',
         required: true
       },
       itinerary: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Itineraries',
         required: true
       },
@@ -28,4 +23,4 @@ const FellowTravelerRequestSchema = new mongoose.Schema({
       },
 },{timestamps:true});
 
-module.exports = mongoose.model("FellowTravelerRequests", FellowTravelerRequestSchema);
+export default mongoose.model("FellowTravelerRequests", FellowTravelerRequestSchema);

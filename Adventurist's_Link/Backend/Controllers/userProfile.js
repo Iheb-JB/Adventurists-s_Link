@@ -1,3 +1,5 @@
+import { sendNotification } from "../Helpers/notificationHelper.js";
+import FellowTravelerRequest from "../Models/FellowTravelerRequest.js";
 import Users from "../Models/Users.js";
 import userProfile from "../Models/userProfile.js";
 
@@ -52,4 +54,35 @@ export const editProfile = async(req,res)=>{
       console.log("error in editing user profile :" , error.message);
       res.status(500).json({error: "internal server error"});
     }
+};
+
+export const updateFellowTravelerRequest = async(req,res)=>{
+  const {requestId} = req.params;
+  const {status} = req.body ;
+  const userId = req.userProfile._id;
+  try {
+    const request = await FellowTravelerRequest.findById(requestId);
+    if(!request){ return res.status(404).json({message: 'Fellow traveler request not found.'});}
+    // only the receive can update the request
+    if(request.receiver.toString() !== userId.toString()){
+       return res.status(400).json({message: 'You can only reply to requests sent to your profile .'});
+    }
+    //validate the request status
+    if(!['accepted','rejected'].includes(status)){
+      return res.status(400).json({message: 'Invalid request status -Only accepted or rejected are allowed !'});
+    }
+    request.status = status ;
+    await request.save();
+    // send notificatio  to the sender about the update
+    const sender = await userProfile.findById(request.sender);
+    const receiver = await userProfile.findOne(userId);
+    const notificationMessage = `Your fellow traveler request to ${receiver.username} for the itinerary has been ${status}`;
+    await sendNotification(sender._id,'FellowTravelerRequest',notificationMessage );
+
+    res.status(200).json({message:`Request has been ${status}`});
+  } catch (error) {
+    console.log("error in uppdating fellow traveler request:" , error.message);
+    res.status(500).json({error: "internal server error"});
+  }
+
 }

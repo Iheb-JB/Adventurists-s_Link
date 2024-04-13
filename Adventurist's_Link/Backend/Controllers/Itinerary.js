@@ -1,3 +1,4 @@
+import { sendFellowTravelerRequest } from "../Helpers/fellowTravelerRequestHelper.js";
 import { sendNotification } from "../Helpers/notificationHelper.js";
 import Activity from "../Models/Activity.js";
 import Destination from "../Models/Destination.js";
@@ -266,6 +267,31 @@ export const removeDestinationFromItinerary = async (req, res) => {
         res.status(200).json({ message: "Destination removed successfully.", itinerary });
     } catch (error) {
         console.log("Error in removing destination from itinerary:", error.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+export const createFellowTravelerRequest = async(req,res)=>{
+    const {itineraryId} = req.params ;
+    const senderId = req.userProfile._id ;
+    try {
+     const itinerary = await Itinerary.findById(itineraryId);
+     if(!itinerary){
+        return res.status(404).json({message: 'Itinerary not found !'});
+     }
+
+     if(itinerary.user.toString() === senderId.toString()){
+        return res.status(400).json({message: 'You cannot send a request to  yourself.'});
+     }
+     // the receiver should be the creator fo the itinerary |
+     const receiverId = itinerary.user ;
+     const response = await sendFellowTravelerRequest(senderId,receiverId,itineraryId);
+     if(!response.success){
+        return res.status(400).json({message: response.message});
+     }
+      res.status(200).json({message: response.message});  
+    } catch (error) {
+        console.log("Error in creating fellowTravelerRequest from Itinerary:", error.message);
         res.status(500).json({ error: "Internal server error" });
     }
 };
