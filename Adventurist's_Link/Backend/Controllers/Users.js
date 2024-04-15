@@ -284,24 +284,28 @@ const forgotPassword = async(req, res, next)=>{
 //reset password controller
 const resetpassword = async(req, res)=>{
   try{
-    const user = await Users.findById(req.params.userId);
+    const  {userId , token} = req.params ;
+    const user = await Users.findById(userId);
+    
     if (!user) return res.status(401).send("invalid link or expired");
     //find the token 
-    const token = await Token.findOne({
-      userId: user.userId,
-      token: req.params.reseToken,
+    const tokenDoc = await Token.findOne({
+      userId: userId,
+      token: token,
     });
-    console.log(token);
+    console.log(tokenDoc);
     // check if the token expired
-    if (!token) return res.status(403).send("Invalid link or expired");
-
+    if (!tokenDoc) return res.status(403).send("Invalid link or expired");
+    
+    if (req.body.password !== req.body.confirmPassword) {
+      return res.status(400).send("Passwords do not match");
+    }
     user.password = req.body.password;
-    user.confirmPassword = req.body.confirmPassword ;
   // hash the new password and save it to DB
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
     await user.save();
-    await token.deleteOne();
+    await tokenDoc.deleteOne();
     //console.log(user); testing errors purposes 
 
     res.send("password reset sucessfully.");
