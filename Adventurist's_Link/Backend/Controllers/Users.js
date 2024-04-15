@@ -293,7 +293,7 @@ const resetpassword = async(req, res)=>{
       userId: userId,
       token: token,
     });
-    console.log(tokenDoc);
+    //console.log(tokenDoc);
     // check if the token expired
     if (!tokenDoc) return res.status(403).send("Invalid link or expired");
     

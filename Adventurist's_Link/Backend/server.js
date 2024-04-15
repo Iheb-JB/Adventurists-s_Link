@@ -17,7 +17,8 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 import { JWT_SECRET, ADMIN_SECRET_KEY } from "./config.js";
-const app = express();
+import { app, server } from "./Socket/socket.js";
+
 
 app.use(express.json());// to parse json incoming content from req.body
 app.use(cookieParser());
@@ -43,7 +44,7 @@ app.all('*', (req, res) => {
 //})
 
 
-app.listen(PORT , ()=> {
+server.listen(PORT , ()=> {
     connectToMongoDb();
     console.log(`Server is running on this port ${PORT}`)
 
