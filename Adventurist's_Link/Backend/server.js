@@ -9,6 +9,7 @@ import activitiesRoutes from '../Backend/Routes/activitiesRoutes.js'
 import itinerariesRoute from '../Backend/Routes/itinerariesRoutes.js'
 import notificationRoutes from '../Backend/Routes/notificationRoutes.js'
 import reviewsRoutes from '../Backend/Routes/reviewsRoutes.js'
+import searchRoutes from '../Backend/Routes/searchRoutes.js'
 import cookieParser from "cookie-parser";
 
 
@@ -29,6 +30,7 @@ app.use("/api/activities",activitiesRoutes);
 app.use("/api/itineraries",itinerariesRoute);
 app.use("/api/notifications",notificationRoutes);
 app.use("/api/reviews", reviewsRoutes);
+app.use("/api/search-itineraries", searchRoutes);
 
 app.all('*', (req, res) => {
     res.status(404).send('Route not found');

@@ -20,11 +20,11 @@ const userProfileSchema = new mongoose.Schema({
     type: String,
     default:""
   },
-  travelerPreferences: { 
+  travelerPreferences:[{ 
     type: String,
     required: false ,
-    enum: ["Cultural and city Exploration","Food and Culinary Experience","Adventure and Outdoor Activities (hiking, biking, etc.)","Relaxation and Wellness", "Party , Festivals and Events"],
-    },
+    enum: ["Cultural and city Exploration","Food and Culinary Experience","Adventure and Outdoor Activities","Relaxation and Wellness", "Party , Festivals and Events","Other"],
+    }],
   identityVerified: {
      type: Boolean,
      required: true,

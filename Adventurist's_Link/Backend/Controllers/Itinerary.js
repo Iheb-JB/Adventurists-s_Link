@@ -233,7 +233,7 @@ export const addDestinationToItinerary = async (req, res) => {
             await Promise.all([itinerary.save(), destination.save()]);
             // Notify all participants about the new destination
             itinerary.participants.forEach(participant => {
-                sendNotification(participant._id, 'Itinerary Update', `A new destination ${destination.name} has been added to your itinerary ${itinerary.title}.`);
+                sendNotification(participant._id, 'Itinerary update', `A new destination ${destination.name} has been added to your itinerary ${itinerary.title}.`);
             });
             res.status(200).json({ message: "Destination added successfully.", itinerary });
         } else {
@@ -261,7 +261,7 @@ export const removeDestinationFromItinerary = async (req, res) => {
 
         // Notify all participants about the destination removal
         itinerary.participants.forEach(participant => {
-            sendNotification(participant._id, 'Itinerary Update', `A destination has been removed from your itinerary ${itinerary.title}.`);
+            sendNotification(participant._id, 'Itinerary update', `A destination has been removed from your itinerary ${itinerary.title}.`);
         });
 
         res.status(200).json({ message: "Destination removed successfully.", itinerary });
