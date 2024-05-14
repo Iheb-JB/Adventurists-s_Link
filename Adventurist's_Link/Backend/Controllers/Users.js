@@ -91,10 +91,10 @@ const verifyUserLogin = async (email, password) => {
       const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
       if (isPasswordCorrect) {
         if (!user.verified) {
-          return res.json({
+          return {
             status: "error",
             error: "Please verify your email address to proceed.",
-          });
+          };
         }
         // creating a JWT token
         const token = jwt.sign(
@@ -126,42 +126,21 @@ const login = async(req,res)=>{
         
          // we made a function to verify our user login
          const response = await verifyUserLogin(email, password);
+         if (response.status !== "ok") {
+          return res.status(401).json({ error: response.error });
+         }
+         const token = response.data;
          //check if userProfile already exists
          let profile = await userProfile.findOne({userId:user._id});
-         if(!profile){
-          // create username from users
-          const username = `${user.firstName}_${user.lastName}`;
-          profile = new userProfile({ // create the user Profile since it does not exist
-             userId: user._id,
-             username: username,
-             bio: "",
-             profilePicture: "",
-             travelerPreferences:"Party , Festivals and Events",
-             identityVerified: true,
-             accountStatus: 'Active',
-             gender:"Male", 
-             dateOfBirth: new Date(),
-          });
-          await profile.save();
-         }
-         if (response.status === "ok") {
-          // storing our JWT web token as a cookie in our browser
-          res
-            .cookie("token", response.data, {
-              httpOnly: true,
-              secure: true,
-              path: "/",
-              SameSite: "none",
-            })
-            .json({ loginStatus: true }); // maxAge: 2 hours
-        } else {
-          res.json(response);
-        }
+         
+          // profile not complete , first login
+          res.json({loginStatus:true , token , profile: !!profile })
+         
+        
         }catch(error){
           console.log("Error in Login:", error.message);
           res.status(500).json({ error: "Internal server error" });
-        }
-            
+        }    
 };
 
 const logout = async(req,res)=>{
@@ -261,8 +240,8 @@ const forgotPassword = async(req, res, next)=>{
       }).save();
     }
 //setting email options to send 
-    const currentUrl="http://localhost:8000/" ;
-    const resetUrl = `${req.protocol}://${currentUrl}api/auth/resetPassword/${user._id}/${reseToken.token}`
+    const currentUrl="http://localhost:3000/" ;
+    const resetUrl = `${currentUrl}customer-dashboard/customer-profile?tab=change-pass&userId=${user._id}&token=${reseToken.token}`
     const mailOptions = {
       from: "testpurposecd1@gmail.com",
       to: user.email,

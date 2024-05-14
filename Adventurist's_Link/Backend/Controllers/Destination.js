@@ -1,14 +1,11 @@
 import Destination from "../Models/Destination.js";
 
 export const createDestination = async(req,res)=>{
-    const {name , coordinates}= req.body ;
+    const {name , location}= req.body ;
     try {
         const newDestination = new Destination({
            name,
-           location: {
-            type: 'Point',
-            coordinates,
-          },
+           location,
         });
         await newDestination.save();
         res.status(200).json(newDestination);
@@ -21,7 +18,7 @@ export const createDestination = async(req,res)=>{
 
 export const updateDestination = async(req,res)=>{
     const {id} = req.params ;
-    const {name , coordinates} = req.body;
+    const {name , location} = req.body;
     try {
         const upddatedDestination = await Destination.findByIdAndUpdate(id,
             {name,

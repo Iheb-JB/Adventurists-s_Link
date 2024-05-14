@@ -6,7 +6,12 @@ import { JWT_SECRET } from "../config.js";
 const protectRoute = async (req,res,next)=>{
     let token ;
    try{
+
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+      token = req.headers.authorization.split(' ')[1];
+    }else{
       token = req.cookies.token;
+    }
        if(!token){
          return res.status(401).json({error:"Unauthorised - No token found!"});
        }

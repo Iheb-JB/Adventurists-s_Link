@@ -8,29 +8,30 @@ import userProfile from "../Models/userProfile.js";
 
 export const createItinerary = async(req,res)=>{
     const userId = req.userProfile._id; // get user ID of the creator 
-    const{title , description , startDate , endDate ,destinationId , activitiesIds }=req.body
+    const{title , description , startDate , endDate, groupSize ,destinations ,activities , participants }=req.body
     try {
      // Check if the user is already a participant in the itinerary
-      const isParticipant = await Itinerary.findOne({ participants: { $in: userId } });
+      const isParticipant = await Itinerary.findOne({ participants: { $in: participants } });
       if (isParticipant) {
         return res.status(400).json({ error: "You are already a participant in this itinerary." });
     }
-    const destination = await Destination.findById(destinationId);
+    const destination = await Destination.find({ _id: { $in: destinations } });
         if (!destination) {
             return res.status(404).json({ error: "Destination not found." });
         }
-    const activities = await Activity.find({ _id: { $in: activitiesIds } });
-     if (activities.length!== activitiesIds.length) {
-        return res.status(400).json({ error: "One or more activities not found." });
-     }
+    const activitiy = await Activity.find({ _id: { $in: activities } });
+    // if (activities.length!== activitiesIds.length) {
+       // return res.status(400).json({ error: "One or more activities not found." });
+     //}
      const itinerary = new Itinerary({
         title,
         description,
         startDate,
         endDate,
+        groupSize,
         user: userId,
-        destinations: destinationId,
-        activities: activitiesIds, 
+        destinations,
+        activities, 
         participants: [userId] // Automatically add the creator as a participant
     });
 
@@ -42,7 +43,7 @@ export const createItinerary = async(req,res)=>{
     }
     creator.itineraries.push(itinerary._id);
     await creator.save(); // save the updated user profile
-    sendNotification(userId,'Itinerary Update','A new itinerary has been created'); // send notification about itinerary creation
+    sendNotification(userId,'Itinerary update','A new itinerary has been created'); // send notification about itinerary creation
     res.status(201).json(itinerary);
         
     } catch (error) {

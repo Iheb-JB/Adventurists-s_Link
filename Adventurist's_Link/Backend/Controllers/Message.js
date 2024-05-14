@@ -10,7 +10,9 @@ export const sendMessage = async(req,res)=>{
        const {message} = req.body;
        const {id: receiverId}= req.params ;
        const senderId = req.userProfile._id;
-
+       if (!message) {
+        return res.status(400).json({error: "Message content is required"});
+       }
        //console.log("Sender ID:", senderId, "Receiver ID:", receiverId);
        let conversation = await  Conversations.findOne({
           participants: {$all:[senderId,receiverId]},

@@ -27,21 +27,17 @@ const userProfileSchema = new mongoose.Schema({
     }],
   identityVerified: {
      type: Boolean,
-     required: true,
      default: false,
     },
   accountStatus: { 
     type: String,
-    required: true 
     },
     gender: {
       type: String,
-      required: true,
       enum: ['Male', 'Female', 'Other'],
     },
     dateOfBirth: {
       type: Date,
-      required: true,
     },
   //reference relationships that define one-to-many relationships between models
   itineraries: [

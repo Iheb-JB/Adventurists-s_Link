@@ -16,6 +16,10 @@ const ItinerarySchema = new mongoose.Schema({
       type: Date,
       required: true
     },
+    groupSize:{
+      type: Number,
+      default:1 
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'userProfile'

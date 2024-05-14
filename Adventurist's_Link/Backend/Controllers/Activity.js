@@ -2,12 +2,14 @@ import Activity from "../Models/Activity.js";
 
 export const create_activity = async (req, res) => {
   try {
-    const { name, description, duration , type } = req.body;
+    const { name, location, activityDate ,groupSize, description, type } = req.body;
     // Create a new activity
     const newActivity = new Activity({
       name,
+      location,
+      activityDate,
+      groupSize,
       description,
-      duration,
       type
     });
     const savedActivity = await newActivity.save();
@@ -21,15 +23,17 @@ export const create_activity = async (req, res) => {
 export const edit_activity = async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, description, duration,type } = req.body;
+      const { name, location, activityDate ,groupSize, description, type } = req.body;
   
       // Find the activity
       const activityToUpdate = await Activity.findById(id);
   
       // Update the activity
       activityToUpdate.name = name;
+      activityToUpdate.location = location;
+      activityToUpdate.activityDate = activityDate;
+      activityToUpdate.groupSize = groupSize; 
       activityToUpdate.description = description;
-      activityToUpdate.duration = duration;
       activityToUpdate.type = type;
   
       // Save the updated activity
