@@ -3,27 +3,56 @@ import Itinerary from "../Models/Itinerary.js";
 
 
 export const searchItineraries = async(searchCriteria , userPreferences)=>{
-    const { searchString} = searchCriteria ;
-   // console.log("Search String:", searchString); 
-    try{
-      //find query to find destinations 
-    const destinations = await Destination.find({
-        name:{$regex: searchString , $options: 'i'} // case insensitive partial match
-    });
-    if(!destinations.length){
-        console.log("No destinations found within the specified range.");
-            return [];
-    }
+    const { searchString,
+            startDate,
+            endDate,
+            type,
+            location
+    } = searchCriteria ; 
 
-    // find itineraries that includes this destinations 
+     const dateFlexibility = 7; // days of flexibility around start and end dates
+    try{
+        // query to search for destinations : name + location using GOOGLE MAP API object
+    let destinationQuery = {
+       name: {$regex: searchString, $options:'i'}
+    };
+    if(location && location.coordinates){
+        destinationQuery={
+            ...destinationQuery,
+            location:{
+                $near:{
+                    $geometry:{
+                        type: 'Point',
+                        coordinates: location.coordinates
+                    },
+                    $maxDistance: 200000 // up to 200Km near for testing purposes
+                }
+            }
+        };
+    }
+    const destinations = await Destination.find(destinationQuery);
+    if(!destinations.length){
+        console.log("No created Itineraries found with this destination.");
+        return [];
+    }
+    //seetting flexible dates for search:
+    const flexibleStartDate = new Date(startDate);
+    flexibleStartDate.setDate(flexibleStartDate.getDate()-dateFlexibility);
+    const flexibleEndDate = new Date(endDate);
+    flexibleEndDate.setDate(flexibleEndDate.getDate()+ dateFlexibility);
+
+    // find itineraries that includes the searched destinations within the set flexible dates
     const itineraries = await Itinerary.find({
-        destinations: {$in: destinations.map(dest => dest._id)}
+        destinations: {$in: destinations.map(dest => dest._id)},
+        $or: [
+            { startDate:{$gte:flexibleStartDate, $lte:flexibleEndDate}},
+            {endDate:{$gte:flexibleStartDate, $lte:flexibleEndDate}}
+        ],
     }).populate('participants').populate({
         path: 'activities',
         model: 'Activities'
     });
-
-    // score itineraries for matching algorithm
+    // score the founded itineraries to sort them out
     const scoredItineraries = itineraries.map(itinerary =>{
         let score = 0 ;
         let totalParticipants = itinerary.participants.length;
@@ -33,19 +62,21 @@ export const searchItineraries = async(searchCriteria , userPreferences)=>{
                 userPreferences.includes(pref) ? count +1: count, 0 );
             score += (matchCount / participant.travelerPreferences.length)* 100 ;
         });
-        //score based on matching activity steps 
+        //score based on matching activity type 
         itinerary.activities.forEach(activity =>{
-            if(userPreferences.includes(activity.type)){score += 10 ;}// each mached activity adds points
+            if(userPreferences.includes(activity.type)){score += 5 ;}// each matched activity adds points
+            if(type === activity.type){// if activity type matches the type chosen by the user in the search bar
+               score +=15 ; 
+            }
         });
         score = score / totalParticipants ;
         return {itinerary , score};
     });
 
     scoredItineraries.sort((a,b)=> b.score - a.score);
-    return scoredItineraries ;
+    return scoredItineraries ; // an array of sorted results (itineraries) based on the matching score
     }catch(error){
         console.error("Failed to search with search criteria:", error);
         throw error;
-    }
-    
+    }  
 };
