@@ -6,7 +6,8 @@ import userProfile from "../Models/userProfile.js";
 export const getUsersForSideBar = async(req,res)=>{
     try{
         const loggedInUserId = req.user._id ;
-       const filteredUsers = await Users.find({_id: {$ne: loggedInUserId}}).select("-password"); // every user beside yourself as logged in 
+       const filteredUsers = await userProfile.find({userId: {$ne: loggedInUserId}}).populate({path: 'userId',
+                                                                                               select: 'username profilePicture'}); // every user beside yourself as logged in 
         res.status(200).json(filteredUsers);
 
     }catch(error){
@@ -20,6 +21,8 @@ export const editProfile = async(req,res)=>{
         
     try {
         const userId = req.user._id; // get the logged user ID
+        const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`
+        const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`
         //find user object to update
         let userProfileToUpdate = await userProfile.findOne({userId});
         if (!userProfileToUpdate) {   
@@ -27,7 +30,7 @@ export const editProfile = async(req,res)=>{
              userId,
              username: `${req.user.firstName}_${req.user.lastName}`,
              bio: bio || "",
-             profilePicture: profilePicture || "",
+             profilePicture: gender ==="male" ? boyProfilePic : girlProfilePic || "",
              travelerPreferences: travelerPreferences || [],
              identityVerified : identityVerified || false,
              accountStatus : accountStatus || "active",

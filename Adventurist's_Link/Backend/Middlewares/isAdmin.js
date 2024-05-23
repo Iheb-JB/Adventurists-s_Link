@@ -15,7 +15,6 @@ function isAdmin(req,res,next){
     }else if(verify.isAdmin === false){
         res.status(200).send({isAdmin: false});
     }
-
   }catch(ex){
     res.status(400).send({loginStatus: false});
   }

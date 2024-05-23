@@ -4,6 +4,7 @@ import Message from '../Models/Message.js'
 import Conversation from "../Models/Conversation.js";
 import userProfile from "../Models/userProfile.js";
 import { sendNotification } from "../Helpers/notificationHelper.js";
+import { getReceiverSocketId, io } from "../Socket/socket.js";
 
 export const sendMessage = async(req,res)=>{
     try{
@@ -31,10 +32,10 @@ export const sendMessage = async(req,res)=>{
         const newMessage = new Message({
             conversationId: conversation._id,
             senderId: senderId,
-            //receiverId: receiverId,
+            receiverId: receiverId,
             content: message,
         })
-        // SOCKET IO FUNCTIONALITY TO BE ADDED 
+        
         // save in parallel to ensure real-time updates in chat feature
         await Promise.all([
             newMessage.save(),
@@ -45,6 +46,11 @@ export const sendMessage = async(req,res)=>{
                 }
             })
         ]);
+        // SOCKET IO FUNCTIONALITY TO BE ADDED 
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage",newMessage);
+        }
         // Send a notification to the receiver
         const senderProfile = await userProfile.findById(senderId).select("username profilePicture");  // Assuming we have username and profilePicture
         const notificationMessage = `${senderProfile.username} sent you a message: "${message}"`;
@@ -76,7 +82,6 @@ export const getMessages = async(req, res)=>{
     console.log("error in get Messages:" , error.message);
     res.status(500).json({error: "internal server error"});
    }
-
 };
 
 export const getConversations = async(req,res)=>{
@@ -84,7 +89,7 @@ export const getConversations = async(req,res)=>{
     try{
         const conversations = await Conversation.find({participants: userId}).populate({
             path:"participants",
-            select: "username profilePicture",
+            select: "username profilePicture lastMessage",
         });
         // remove the founded user from participants array
 		conversations.forEach((conversation) => {
@@ -92,12 +97,9 @@ export const getConversations = async(req,res)=>{
 				(participant) => participant._id.toString() !== userId.toString()
 			);
 		});
-
-        // send response
         res.status(200).json(conversations);
     }catch(error){
       console.log("error in getting Conversations:" , error.message);
       res.status(500).json({error: "internal server error"});
     }
-   
 };

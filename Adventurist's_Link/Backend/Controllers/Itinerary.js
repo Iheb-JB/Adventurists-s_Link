@@ -7,6 +7,7 @@ import userProfile from "../Models/userProfile.js";
 
 
 export const createItinerary = async(req,res)=>{
+    console.log("User Profile Attached:", req.userProfile);
     const userId = req.userProfile._id; // get user ID of the creator 
     const{title , description , startDate , endDate, groupSize ,destinations ,activities , participants }=req.body
     try {

@@ -4,6 +4,6 @@ import { matchUsers } from "../Controllers/travelMatch.js";
 
 const router = express.Router();
 
-router.post("/",protectRoute,matchUsers);
+router.post("/",matchUsers);
 
 export default router;

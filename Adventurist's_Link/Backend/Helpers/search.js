@@ -9,10 +9,9 @@ export const searchItineraries = async(searchCriteria , userPreferences)=>{
             type,
             location
     } = searchCriteria ; 
-
      const dateFlexibility = 7; // days of flexibility around start and end dates
     try{
-        // query to search for destinations : name + location using GOOGLE MAP API object
+    // query to search for destinations : name + location using GOOGLE MAP API object
     let destinationQuery = {
        name: {$regex: searchString, $options:'i'}
     };
@@ -25,7 +24,7 @@ export const searchItineraries = async(searchCriteria , userPreferences)=>{
                         type: 'Point',
                         coordinates: location.coordinates
                     },
-                    $maxDistance: 200000 // up to 200Km near for testing purposes
+                    $maxDistance: 200000 // up to 200Km near
                 }
             }
         };
@@ -40,7 +39,6 @@ export const searchItineraries = async(searchCriteria , userPreferences)=>{
     flexibleStartDate.setDate(flexibleStartDate.getDate()-dateFlexibility);
     const flexibleEndDate = new Date(endDate);
     flexibleEndDate.setDate(flexibleEndDate.getDate()+ dateFlexibility);
-
     // find itineraries that includes the searched destinations within the set flexible dates
     const itineraries = await Itinerary.find({
         destinations: {$in: destinations.map(dest => dest._id)},
@@ -70,9 +68,9 @@ export const searchItineraries = async(searchCriteria , userPreferences)=>{
             }
         });
         score = score / totalParticipants ;
+        console.log('Matching score',score);
         return {itinerary , score};
     });
-
     scoredItineraries.sort((a,b)=> b.score - a.score);
     return scoredItineraries ; // an array of sorted results (itineraries) based on the matching score
     }catch(error){

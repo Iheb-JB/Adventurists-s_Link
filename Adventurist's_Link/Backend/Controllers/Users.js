@@ -134,7 +134,11 @@ const login = async(req,res)=>{
          let profile = await userProfile.findOne({userId:user._id});
          
           // profile not complete , first login
-          res.json({loginStatus:true , token , profile: !!profile })
+          res.json({loginStatus:true , token , profile: profile ?{
+            _id: profile._id,  // Important: Send the userProfile _id not the user _id
+            username: profile.username,
+            profilePicture: profile.profilePicture,
+          }: null });
          
         
         }catch(error){

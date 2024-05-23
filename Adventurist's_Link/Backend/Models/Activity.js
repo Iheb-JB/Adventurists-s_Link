@@ -24,8 +24,8 @@ const ActivitySchema = new mongoose.Schema({
    }
  },
   type: { 
-   type: String,
-   enum: ["Cultural and city Exploration","Food and Culinary Experience","Adventure and Outdoor Activities","Relaxation and Wellness", "Party , Festivals and Events", "Other"], 
+   type: String,enum: ["Cultural and city Exploration","Food and Culinary Experience","Adventure and Outdoor Activities","Relaxation and Wellness", "Party , Festivals and Events", "Other",""], 
+   
  },
  groupSize:{
    type: Number,

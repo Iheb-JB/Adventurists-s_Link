@@ -12,11 +12,12 @@ import notificationRoutes from '../Backend/Routes/notificationRoutes.js'
 import reviewsRoutes from '../Backend/Routes/reviewsRoutes.js'
 import searchRoutes from '../Backend/Routes/searchRoutes.js'
 import cookieParser from "cookie-parser";
+import { app, server } from "./Socket/socket.js";
 
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
-const app = express();
+//export const app = express();
 app.use(cors({
     origin:'http://localhost:3000',
     optionsSuccessStatus: 200,
@@ -24,8 +25,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));    
 import { JWT_SECRET, ADMIN_SECRET_KEY } from "./config.js";
-import { server } from "./Socket/socket.js";
-//import { app, server } from "./Socket/socket.js";
+
 
 
 app.use(express.json());// to parse json incoming content from req.body
@@ -52,7 +52,7 @@ app.get("/", async (req, res)=>{
 })
 
 
-app.listen(PORT , ()=> {
+  server.listen(PORT , ()=> {
     connectToMongoDb();
     console.log(`Server is running on this port ${PORT}`)
 

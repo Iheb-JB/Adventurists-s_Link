@@ -1,10 +1,10 @@
 import { searchItineraries } from "../Helpers/search.js";
 
 export const matchUsers = async(req,res)=>{
+    const searchCriteria  = req.body;
     try {
-        const {searchString } = req.body;
         const userPreferences = req.userProfile.travelerPreferences ;
-        const results = await searchItineraries({searchString}, userPreferences);
+        const results = await searchItineraries(searchCriteria, userPreferences);
         res.json(results.map(result =>({
            itinerary: result.itinerary,
            matchscore: result.score

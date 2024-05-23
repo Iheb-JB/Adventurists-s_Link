@@ -6,7 +6,6 @@ import { JWT_SECRET } from "../config.js";
 const protectRoute = async (req,res,next)=>{
     let token ;
    try{
-
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
       token = req.headers.authorization.split(' ')[1];
     }else{
@@ -21,18 +20,18 @@ const protectRoute = async (req,res,next)=>{
        if(!decoded){
         return res.status(401).json({error:"Unauthorised - No token found in decoded!"});
        }
-       
        const user = await Users.findById(decoded.id).select("-password"); 
        if( !user){
         res.status(500).json({error: "user not found !"});
        }
        // Fetch the userProfile using the user's ID
-       const profile = await userProfile.findOne({ userId: user._id });
-       if (!profile) {
-           return res.status(404).json({error: "User profile not found!"});
-       }
+      const profile = await userProfile.findOne({ userId: user._id });
+      // if (!profile) {
+          // return res.status(404).json({error: "User profile not found!"});
+       //}
        req.user = user ;
        req.userProfile = profile; // contains extended userProfile data when needed.
+       console.log("User Profile Attached:", req.userProfile);
        next();
     }catch(error){
       console.log("error in protect Route MDWR:" , error.message);
