@@ -9,9 +9,9 @@ The project was developed using Node.js v18.0, and it is the recommended to use 
 MongoDB: Ensure you have MongoDB installed and running.
 
 To set up and start the project once it is installed locally , the following commands should be run one after another:
-bash `` 
-npm install 
-Npm run server ``
+`` 
+npm install ``
+``npm run server ``
 
 
 If you did not choose to set up a default port in the environment varaibales a default port is selected in this case :
